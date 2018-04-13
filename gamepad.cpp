@@ -83,6 +83,14 @@ void GamePad::manage_event(int code,int value,int sec,int usec)
                 myfile1 << ts.time_of_day() << "\n";
                 myfile1.close();
 	}
+	else if((code == 305 || code == 28) && value == 1){
+                boost::posix_time::ptime ts({1970,1,1}, boost::posix_time::seconds(sec) + boost::posix_time::microsec(usec));
+                //std::cout << ts.time_of_day() << std::endl;
+                std::ofstream myfile2;
+                myfile2.open ("/home/gco/Descargas/Logs/GamePadEv.txt",std::ios::app); // opens the file and writes at the end
+                myfile2 << ts.time_of_day() << "\n";
+                myfile2.close();
+        }
 	else if(code == 1 && value == 2){
 		stop();
 	}
