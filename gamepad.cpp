@@ -18,7 +18,8 @@ void GamePad::start()
 	boost::system::error_code error;
 	int dev;
 	for(int i=0;i<5;i++) {
-		dev = open("/dev/input/event6", O_RDONLY);
+		dev = open("/dev/input/event6", O_RDONLY); // Configuración A
+		// dev = open("/dev/input/event2", O_RDONLY); // Configuración B
 		if(dev == -1){
 			std::cout << "[GamePad::start] Error when opening the GamePad" << std::endl;
 			boost::this_thread::sleep(boost::posix_time::seconds(10));
@@ -37,8 +38,10 @@ void GamePad::start()
 void GamePad::stop()
 {
 	//std::cout << "Turning off the computer" << std::endl;
-	system("/home/gco/Descargas/OpenC2X/scripts/stopOpenC2X.sh");
-	system("rm /etc/rc5.d/S06init.sh");
+	system("/home/gco/Descargas/OpenC2X/scripts/stopOpenC2X.sh"); // Configuración A
+	// system("/home/gco2/Descargas/OpenC2X/scripts/stopOpenC2X.sh"); // Configuración B
+	system("rm /etc/rc5.d/S06init.sh"); // Configuración A
+	// system("rm /etc/rc3.d/S06init.sh"); // Configuración B
 	system("pkill gpsd");
 	system("pkill rfcomm");
 	system("poweroff");
@@ -79,17 +82,15 @@ void GamePad::manage_event(int code,int value,int sec,int usec)
 		boost::posix_time::ptime ts({1970,1,1}, boost::posix_time::seconds(sec) + boost::posix_time::microsec(usec));
 		//std::cout << ts.time_of_day() << std::endl;
 		std::ofstream myfile1;
-                myfile1.open ("/home/gco/Descargas/Logs/GamePad.txt",std::ios::app); // opens the file and writes at the end
-                myfile1 << ts.time_of_day() << "\n";
+		// Opens the file and writes at the end
+                myfile1.open ("/home/gco/Descargas/Logs/GamePad.txt",std::ios::app); // Configuración A
+                // myfile1.open ("/home/gco2/Descargas/Logs/GamePad.txt",std::ios::app); // Configuración B
+		myfile1 << ts.time_of_day() << "\n";
                 myfile1.close();
 	}
 	else if((code == 305 || code == 28) && value == 1){
-                boost::posix_time::ptime ts({1970,1,1}, boost::posix_time::seconds(sec) + boost::posix_time::microsec(usec));
-                //std::cout << ts.time_of_day() << std::endl;
-                std::ofstream myfile2;
-                myfile2.open ("/home/gco/Descargas/Logs/GamePadEv.txt",std::ios::app); // opens the file and writes at the end
-                myfile2 << ts.time_of_day() << "\n";
-                myfile2.close();
+		system("curl -vi -X POST -d '{\"content\":\"triggered by GUI\"}' http://localhost:1188/trigger_denm");
+		// Back slashes (\) are used to escape quotation marks (") at the system call
         }
 	else if(code == 1 && value == 2){
 		stop();
